@@ -1,10 +1,17 @@
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/GLUT.h>
+// osx
+//#include <OpenGL/gl.h>
+//#include <OpenGL/glu.h>
+//#include <GLUT/GLUT.h>
+
+
+
+// window
+#include <windows.h>	   // Standard header for MS Windows applications
+#include <GL/gl.h>		   // Open Graphics Library (OpenGL) header
+#include <GL/glut.h>	   // The GL Utility Toolkit (GLUT) Header
+
+
 #include <stdio.h>
-//#include <windows.h>	   // Standard header for MS Windows applications
-//#include <GL/gl.h>		   // Open Graphics Library (OpenGL) header
-//#include <GL/glut.h>	   // The GL Utility Toolkit (GLUT) Header
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -124,14 +131,16 @@ Thing::Thing() {
 	isSelected = false;
 
 
-	color[0] = (float)(rand()%5000) / 10000;
-	color[1] = (float)(rand()%5000) / 10000;
-	color[2] = (float)(rand()%5000) / 10000;
+	color[0] = (float)(rand()%5000 + 500) / 10000;
+	color[1] = (float)(rand()%5000 + 500) / 10000;
+	color[2] = (float)(rand()%5000 + 500) / 10000;
 
-	mat = {{color[0], color[1], color[2], 1.0},
+	material temp = {{color[0], color[1], color[2], 1.0},
 							 {color[0], color[1], color[2], 1.0},
 							 {color[0], color[1], color[2], 1.0},
 							 8.2};
+
+	mat = temp;
 
 	for(int i=0; i<3; i++){
 		savedColor[i] = color[i];
@@ -144,10 +153,13 @@ Thing::Thing() {
 }
 
 void Thing::updateMaterial() {
-	mat = {{color[0], color[1], color[2], 1.0},
+	material temp = {{color[0], color[1], color[2], 1.0},
 		  {color[0], color[1], color[2], 1.0},
 		  {color[0], color[1], color[2], 1.0},
 		  8.2};
+
+	mat = temp;
+
 }
 
 void Thing::put() {
@@ -270,9 +282,9 @@ void init(void)
 
 
 	/* 100% white light */
-	GLfloat light_ambient[]={0.3, 0.3, 0.3, 1.0};
-	GLfloat light_diffuse[]={0.5, 0.5, 0.5, 1.0};
-	GLfloat light_specular[]={0.5, 0.5, 0.5, 1.0};
+	GLfloat light_ambient[]={0.3, 0.3, 0.3, 0.5};
+	GLfloat light_diffuse[]={0.5, 0.5, 0.5, 0.5};
+	GLfloat light_specular[]={0.5, 0.5, 0.5, 0.5};
 
 	/* set up ambient, diffuse, and specular components for light 0 */
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
@@ -395,8 +407,8 @@ void display()
 		ThingPointer[i]->put();
 	}
 
-	for(int i=1; i<NUM_OF_THINGS; i+=3) {
-		ThingPointer[i]->y += ThingPointer[i]->acc;
+	for(int i=1; i<NUM_OF_THINGS-1; i+=4) {
+		ThingPointer[i]->y += ThingPointer[i]->acc/2;
 		ThingPointer[i]->acc -= 2;
 
 		if(ThingPointer[i]->y < 0) ThingPointer[i]->acc = ThingPointer[i]->savedAcc;
@@ -455,7 +467,35 @@ void keyboard(unsigned char key, int x, int y)
 			LIGHTMOVING = !LIGHTMOVING;
 			break;
 
-		case 'h':		// left key
+		case 'd':
+			if(LIGHTMOVING) {
+				lightX = 0;
+				lightZ = 0;
+			} else if(SELECTMODE) {
+				isSelected->x =0;
+				isSelected->z =0;
+			} else {
+				cameraX = 0;
+				cameraZ = 0;
+			}
+			break;
+
+		case 27:			// 'ESC' -- quit
+			exit(0);
+
+		default:
+			break;
+	}
+}
+
+// SETUP KEYBOARD
+void arrow(int key, int x, int y)
+{
+	switch (key)
+	{
+
+
+		case GLUT_KEY_LEFT:		// left key
 			if(LIGHTMOVING) {
 				lightX += 10;
 			} else {
@@ -479,7 +519,7 @@ void keyboard(unsigned char key, int x, int y)
 			}
 			break;
 
-		case 'k':		// right key
+		case GLUT_KEY_RIGHT:		// right key
 			if(LIGHTMOVING) {
 				lightX -= 10;
 			} else {
@@ -503,7 +543,7 @@ void keyboard(unsigned char key, int x, int y)
 
 			break;
 
-		case 'u':		// up key
+		case GLUT_KEY_UP:		// up key
 			if(LIGHTMOVING) {
 				lightZ += 10;
 			} else {
@@ -521,7 +561,7 @@ void keyboard(unsigned char key, int x, int y)
 
 			break;
 
-		case 'j':		//down key
+		case GLUT_KEY_DOWN:		//down key
 			if(LIGHTMOVING) {
 				lightZ -= 10;
 			} else {
@@ -537,21 +577,6 @@ void keyboard(unsigned char key, int x, int y)
 			}
 			break;
 
-		case 'd':
-			if(LIGHTMOVING) {
-				lightX = 0;
-				lightZ = 0;
-			} else if(SELECTMODE) {
-				isSelected->x =0;
-				isSelected->z =0;
-			} else {
-				cameraX = 0;
-				cameraZ = 0;
-			}
-			break;
-
-		case 27:			// 'ESC' -- quit
-			exit(0);
 
 		default:
 			break;
@@ -585,7 +610,7 @@ void mousePress(GLint button, GLint state, GLint x, GLint y)
 
 		double findMin = 100000;
 
-		for (int i = 0; i < NUM_OF_THINGS; i++) {
+		for (int i = 0; i < NUM_OF_THINGS -1; i++) {
 
 			double temp = ThingPointer[i]->distance(mouseX, mouseY);
 			if(findMin > temp) {
@@ -627,6 +652,7 @@ int main(int argc, char** argv)
 
 	//glutReshapeFunc (reshape);       // register respace (anytime window changes)
 	glutKeyboardFunc (keyboard);     // register keyboard (anytime keypressed)
+	glutSpecialFunc(arrow);
 
 	glutMouseFunc (mousePress);      // register mouse press funct
 
@@ -636,5 +662,3 @@ int main(int argc, char** argv)
 	glutMainLoop();
 	return 0;
 }
-
-
