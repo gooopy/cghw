@@ -9,7 +9,6 @@
 #include <ctime>
 #include <iostream>
 #include <cmath>
-#include <vector>
 
 using namespace std;
 
@@ -138,7 +137,7 @@ Thing::Thing() {
 		savedColor[i] = color[i];
 	}
 
-	cout << x << " " << y << " " << z << endl;
+
 
 
 
@@ -242,10 +241,9 @@ void init(void)
 	glClearColor(0,0,0,0.0);
 	//glColor3f(0.9,0.9,0.9);
 
-	cout << "GENERATE" << endl;
+
 	for(int i=0; i<NUM_OF_THINGS; i++) {
 		ThingPointer[i] = new Thing();
-		cout << i << ": " << ThingPointer[i]->x << " " << ThingPointer[i]->z << endl;
 	}
 
 
@@ -581,11 +579,11 @@ void mousePress(GLint button, GLint state, GLint x, GLint y)
 		mouseX = 250 - x;
 		mouseY = 250 - y;
 
-		cout << mouseX << " " << mouseY << endl;
 
 
 
-		double findMin = 10000;
+
+		double findMin = 100000;
 
 		for (int i = 0; i < NUM_OF_THINGS; i++) {
 
@@ -610,125 +608,16 @@ void mousePress(GLint button, GLint state, GLint x, GLint y)
 		}
 	}
 
-/*
-		double findMin = 10000;
-		if(!hasSelected)
-		{
-			for (vector<Thing>::iterator it = vec.begin(); it != vec.end(); ++it)
-			{
-				if (findMin > it->distance(mouseX, mouseY))
-				{
-					findMin = it->distance(mouseX, mouseY);
-					isSelected = &(*it);
-				}
-			}
-		}
-
-		if(hasSelected)
-		{
-			for (vector<Thing>::iterator it = vec.begin(); it != vec.end(); ++it)
-			{
-				it->isSelected = false;
-			}
-
-			for (vector<Thing>::iterator it = vec.begin(); it != vec.end(); ++it)
-			{
-				if (findMin > it->distance(mouseX, mouseY))
-				{
-					findMin = it->distance(mouseX, mouseY);
-					isSelected = &(*it);
-				}
-			}
-		}
-		if(isSelected->distance(mouseX, mouseY) < 10)
-		{
-			isSelected->isSelected = true;
-			hasSelected = true;
-		} else {
-			isSelected->isSelected = false;
-		}
-
-
-
-	}
-
-	if (button==GLUT_LEFT_BUTTON  && state==GLUT_UP && mode==DRAWING)
-	{
-		printf("LEFT Mouse Up\n");
-		mouseX = x;
-		mouseY = winH - y;
-		vec.push_back(tempThing);
-
-		tempThing.setStart(0,0);
-		tempThing.setEnd(0,0);
-
-
-
-		isGenerated = false;
-		glutPostRedisplay();
-	}
-
-	if (button==GLUT_RIGHT_BUTTON  && state==GLUT_DOWN)
-	{
-		printf("RIGHT Mouse Down\n");
-		mouseX = x;
-		mouseY = winH - y;
-		glutPostRedisplay();
-	}
-	if (button==GLUT_RIGHT_BUTTON  && state==GLUT_UP)
-	{
-		printf("RIGHT Mouse Up\n");
-		mouseX = x;
-		mouseY = winH - y;
-		glutPostRedisplay();
-	}
-*/
 
 
 }
 
-// MouseMotion: Called anytime mouse moves and button _is_ pressed
-// note that we don't know which button is pressed, so this works
-// with left/right/middle button
-// if we want to know which button, we need to set a global variable in the
-// mousePress callback
-/*void mouseMotion(int x, int y)
-{
-	if(mode==DRAWING)
-	{
-		mouseX = x;
-		mouseY = winH - y;
 
-		tempThing.setEnd(mouseX, mouseY);
-
-
-		//printf("Mouse motion (%i %i) with a button down \n", mouseX, mouseY); // we don't know which button!  Need a global to record it from mousePress() function
-		glutPostRedisplay();
-	}
-
-	if(mode==SELECT)
-	{
-		mouseX = x;
-		mouseY = winH - y;
-		if(isSelected->isSelected)
-		{
-				isSelected->setEnd(mouseX, mouseY);
-		}
-	}
-}
-
-// call anytime mouse moves and no button presed
-void mousePassiveMotion(int x, int y)
-{
-	//printf("Mouse motion (%i %i) _no_ button pressed \n", x, winH-y); // we don't know which button!  Need a global to record it from mousePress() function
-}
-
-
-*/
 
 int main(int argc, char** argv)
 {
 	srand(time(0));
+
 
 	glutInit(&argc, argv);   // not necessary unless on Unix
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
@@ -740,8 +629,6 @@ int main(int argc, char** argv)
 	glutKeyboardFunc (keyboard);     // register keyboard (anytime keypressed)
 
 	glutMouseFunc (mousePress);      // register mouse press funct
-	//glutMotionFunc(mouseMotion);     // ** Note, the name is just glutMotionFunc (not glutMouseMotionFunc)
-	//glutPassiveMotionFunc(mousePassiveMotion); // Passive motion
 
 	glutDisplayFunc (display);       // register display function
 	glutIdleFunc (idle);             // reister idle function
